@@ -200,25 +200,6 @@ def save_product(request):
                     product.image = image  # Save to local media folder
                 product.save()
 
-                # # Upload image to S3
-                # if image:
-                    
-                #     import boto3
-                #     from botocore.exceptions import NoCredentialsError, PartialCredentialsError
-
-                #     bucket_name = "x23344440-s3"
-                #     object_name = f"products/{image.name}"  
-
-                #     s3_client = boto3.client('s3', region_name="us-east-1")
-
-                #     try:
-                #         image.seek(0)
-                #         s3_client.upload_fileobj(image, bucket_name, object_name)
-                #     except (NoCredentialsError, PartialCredentialsError) as e:
-                #         print(f"[S3 Credential Error] {e}")
-                #     except Exception as e:
-                #         print(f"[S3 Upload Error] {e}")
-
 
                 resp['status'] = 'success'
                 messages.success(request, 'Product successfully saved.')
