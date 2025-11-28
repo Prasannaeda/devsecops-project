@@ -42,7 +42,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'daily_deal.urls'
+ROOT_URLCONF = 'easy_bill.urls'
 
 TEMPLATES = [
     {
