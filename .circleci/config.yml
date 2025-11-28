@@ -73,6 +73,7 @@ jobs:
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.projectKey=Prasannaeda_devsecops-project \
               -Dsonar.organization=prasannaeda \
+              -Dsonar.exclusions=**/.c9/**,**/node_modules/**,**/venv/**,**/.venv/**,**/migrations/**,**/*.pyc \
               -Dsonar.coverage.exclusions=**/* || true
 
             sleep 5
