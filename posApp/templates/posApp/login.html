@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    {% if page_title %}
+    <title>{{ page_title }} | Grocery Point Of Sale System</title>
+    {% else %}
+    <title>Grocery Point Of Sale System</title>
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'posAPP/assets/default/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'posAPP/assets/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'posAPP/assets/material-admin/vendors/mdi/css/materialdesignicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'posAPP/assets/material-admin/vendors/css/vendor.bundle.base.css' %}">
+    <link rel="stylesheet" href="{% static 'posAPP/assets/material-admin/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+    <link rel="stylesheet" href="{% static 'posAPP/assets/material-admin/vendors/jvectormap/jquery-jvectormap.css' %}">
+    <link rel="stylesheet" href="{% static 'posAPP/assets/material-admin/css/demo/style.css' %}">
+    <link rel="shortcut icon" href="{% static 'posAPP/assets/material-admin/images/favicon.png' %}" />
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #ff4c33 0%, #a24b4b 100%);
+            min-height: 100vh;
+        }
+        .login-card {
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .header-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .mdc-text-field {
+            border-radius: 12px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .mdc-text-field:focus-within {
+            border-color: #667eea;
+            background: white;
+        }
+        .login-button {
+            background: linear-gradient(135deg, #ff4c33 0%, #a24b4b 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+    
+    <script src="{% static 'posAPP/assets/default/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'posAPP/assets/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'posAPP/assets/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'posAPP/assets/bootstrap/js/popper.min.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <script src="{% static 'posAPP/assets/material-admin/js/preloader.js' %}"></script>
+    <div class="body-wrapper">
+        <div class="main-wrapper">
+            <div class="page-wrapper full-page-wrapper d-flex align-items-center justify-content-center">
+                <main class="auth-page">
+                    <div class="mdc-layout-grid">
+                        <div class="mdc-layout-grid__inner justify-content-center">
+                            <div class="mdc-layout-grid__cell--span-2-desktop"></div>
+                            <div class="header-card mdc-layout-grid__cell--span-8-desktop mdc-layout-grid__cell--span-8-tablet mb-4 p-4">
+                                <div class="text-center">
+                                    <div style="display: inline-block; background: linear-gradient(135deg, #ff4c33 0%, #a24b4b 100%); width: 70px; height: 70px; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                                        <i class="mdi mdi-store text-white" style="font-size: 40px;"></i>
+                                    </div>
+                                    <h2 class="mb-2" style="color: #2c3e50; font-weight: 700;">Daily Deal System</h2>
+                                    <p class="text-muted">Sign in to continue to your dashboard</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mdc-layout-grid__inner">
+                            <div class="stretch-card mdc-layout-grid__cell--span-4-desktop mdc-layout-grid__cell--span-1-tablet"></div>
+                            <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-4-desktop mdc-layout-grid__cell--span-6-tablet">
+                                <div class="login-card p-4">
+                                    <form id="login-user">
+                                        {% csrf_token %}
+                                        <div class="mb-4">
+                                            <label class="mb-2" style="font-weight: 600; color: #2c3e50;">
+                                                <i class="mdi mdi-account me-2"></i>Username
+                                            </label>
+                                            <input type="text" class="form-control form-control-lg" name="username" placeholder="Enter your username" style="border-radius: 12px; border: 2px solid #e9ecef;" required>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="mb-2" style="font-weight: 600; color: #2c3e50;">
+                                                <i class="mdi mdi-lock me-2"></i>Password
+                                            </label>
+                                            <input type="password" class="form-control form-control-lg" name="password" placeholder="Enter your password" style="border-radius: 12px; border: 2px solid #e9ecef;" required>
+                                        </div>
+                                        <button type="submit" class="login-button w-100 mt-3">
+                                            <i class="mdi mdi-login me-2"></i>Sign In
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="stretch-card mdc-layout-grid__cell--span-4-desktop mdc-layout-grid__cell--span-1-tablet"></div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        window.start_loader = function() {
+            $('body').removeClass('loaded')
+        }
+        window.end_loader = function() {
+            $('body').addClass('loaded')
+        }
+    </script>
+
+    <script src="{% static 'posAPP/assets/material-admin/vendors/js/vendor.bundle.base.js' %}"></script>
+    <script src="{% static 'posAPP/assets/material-admin/js/material.js' %}"></script>
+    <script src="{% static 'posAPP/assets/material-admin/js/misc.js' %}"></script>
+    <script src="{% static 'posAPP/assets/material-admin/js/dashboard.js' %}"></script>
+    
+    <script>
+        $(function() {
+            $('#login-user').submit(function(e) {
+                e.preventDefault();
+                var _this = $(this)
+                $('.err-msg').remove();
+                var el = $('<div>')
+                el.addClass("alert alert-danger err-msg")
+                el.hide()
+                if (_this[0].checkValidity() == false) {
+                    _this[0].reportValidity();
+                    return false;
+                }
+                start_loader();
+                $.ajax({
+                    headers: {
+                        "X-CSRFToken": $("input[name='csrfmiddlewaretoken']").val()
+                    },
+                    url: "{% url 'login-user' %}",
+                    data: new FormData($(this)[0]),
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    method: 'POST',
+                    type: 'POST',
+                    dataType: 'json',
+                    error: err => {
+                        console.log(err)
+                        alert_toast("An error occured", 'error');
+                        end_loader();
+                    },
+                    success: function(resp) {
+                        if (typeof resp == 'object' && resp.status == 'success') {
+                            el.removeClass("alert alert-danger err-msg")
+                            location.href = "{% url 'home-page' %}"
+                        } else if (resp.status == 'failed' && !!resp.msg) {
+                            el.text(resp.msg)
+                        } else {
+                            el.text("An error occured", 'error');
+                            end_loader();
+                            console.err(resp)
+                        }
+                        _this.prepend(el)
+                        el.show('slow')
+                        $("html, body, .modal").scrollTop(0);
+                        end_loader()
+                    }
+                })
+            })
+        })
+    </script>
+</body>
+
+</html>

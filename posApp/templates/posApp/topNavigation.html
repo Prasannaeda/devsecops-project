@@ -1,0 +1,61 @@
+{% load static %}
+<header class="mdc-top-app-bar shadow-sm" style="background: white; border-bottom: 1px solid #e9ecef;">
+    <div class="mdc-top-app-bar__row">
+        <div class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+            <button class="material-icons mdc-top-app-bar__navigation-icon mdc-icon-button sidebar-toggler" style="color: #667eea;">menu</button>
+        </div>
+        <div class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end mdc-top-app-bar__section-right">
+            <div class="menu-button-container menu-profile d-none d-md-block">
+                <button class="mdc-button mdc-menu-button" style="border-radius: 12px; padding: 8px 20px; background: #f8f9fa;">
+                    <span class="d-flex align-items-center">
+                        <span class="figure me-2">
+                            <img src="{% static 'posAPP/assets/material-admin/images/faces/ava.jpg' %}" alt="user" class="user" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 2px solid #667eea;">
+                        </span>
+                        <span class="user-name" style="font-weight: 600; color: #2c3e50;">{{ user.first_name }}</span>
+                        <i class="mdi mdi-chevron-down ms-2" style="color: #7f8c8d;"></i>
+                    </span>
+                </button>
+                <div class="mdc-menu mdc-menu-surface" tabindex="-1" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); border: none;">
+                    <ul class="mdc-list" role="menu" aria-hidden="true" aria-orientation="vertical">
+                        <li class="mdc-list-item" role="menuitem" style="transition: all 0.3s ease;">
+                            <a class="text-dark text-decoration-none d-flex align-items-center p-2" href="{% url 'redirect-admin' %}" style="border-radius: 8px;">
+                                <div class="item-thumbnail item-thumbnail-icon-only me-3">
+                                    <div style="background: linear-gradient(135deg, #ff4c33 0%, #a24b4b 100%); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="mdi mdi-cog text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="item-content">
+                                    <h6 class="item-subject font-weight-normal mb-0" style="font-weight: 600; color: #2c3e50;">
+                                        Admin Panel
+                                    </h6>
+                                    <small class="text-muted">System settings</small>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="mdc-list-item" role="menuitem" style="transition: all 0.3s ease;">
+                            <a class="text-dark text-decoration-none d-flex align-items-center p-2" href="{% url 'logout' %}" style="border-radius: 8px;">
+                                <div class="item-thumbnail item-thumbnail-icon-only me-3">
+                                    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="mdi mdi-logout text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="item-content">
+                                    <h6 class="item-subject font-weight-normal mb-0" style="font-weight: 600; color: #2c3e50;">
+                                        Logout
+                                    </h6>
+                                    <small class="text-muted">Sign out</small>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+    .mdc-list-item:hover {
+        background-color: #f8f9fa;
+    }
+</style>

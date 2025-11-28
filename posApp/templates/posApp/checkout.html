@@ -1,0 +1,58 @@
+{% load humanize %}
+<div class="container-fluid">
+    <form action="" id="checkout-form">
+        <div class="form-group mb-4">
+            <label for="payable_amount" class="control-label mb-2" style="font-weight: 600; color: #2c3e50; font-size: 16px;">
+                <i class="mdi mdi-cash-multiple me-2"></i>Payable Amount
+            </label>
+            <input type="text" id="payable_amount" class="form-control form-control-lg text-end" value="{{ grand_total|intcomma }}" required disabled style="border: 2px solid #e9ecef; border-radius: 12px; background: #f8f9fa; font-size: 24px; font-weight: 700; color: #2c3e50;">
+        </div>
+        
+        <div class="form-group mb-4">
+            <label for="tendered_amount" class="control-label mb-2" style="font-weight: 600; color: #2c3e50; font-size: 16px;">
+                <i class="mdi mdi-cash me-2"></i>Amount Tendered
+            </label>
+            <input type="number" step="any" id="tendered_amount" class="form-control form-control-lg text-end" value="0" required style="border: 2px solid #4facfe; border-radius: 12px; font-size: 24px; font-weight: 700; color: #2c3e50;">
+        </div>
+        
+        <div class="form-group mb-4">
+            <label for="payment_change" class="control-label mb-2" style="font-weight: 600; color: #2c3e50; font-size: 16px;">
+                <i class="mdi mdi-cash-refund me-2"></i>Change
+            </label>
+            <input type="text" id="payment_change" class="form-control form-control-lg text-end" value="{{ 0|intcomma }}" required disabled style="border: 2px solid #e9ecef; border-radius: 12px; background: #f8f9fa; font-size: 24px; font-weight: 700; color: #43e97b;">
+        </div>
+    </form>
+</div>
+
+<script>
+    $(function() {
+        $('#tendered_amount').on('input keypress keyup keydown', function() {
+            var tendered_amount = $('#tendered_amount').val()
+            var payable = $('#payable_amount').val()
+            tendered_amount = tendered_amount.replace(/,/gi, '')
+            payable = payable.replace(/,/gi, '')
+            var change = 0
+            tendered_amount = tendered_amount > 0 ? tendered_amount : 0;
+            $('[name="tendered_amount"]').val(tendered_amount)
+            change = parseFloat(tendered_amount) - parseFloat(payable)
+            console.log(tendered_amount, payable)
+            $('#payment_change').val(parseFloat(change).toLocaleString('en-US'))
+            $('[name="amount_change"]').val(change)
+            
+            if(change < 0) {
+                $('#payment_change').css('color', '#e74c3c');
+            } else {
+                $('#payment_change').css('color', '#43e97b');
+            }
+        })
+        
+        $('#checkout-form').submit(function(e) {
+            e.preventDefault();
+            if ($('[name="amount_change"]').val() < 0) {
+                alert("Tendered Amount is lower that Payable Amount")
+                return false;
+            }
+            $('#pos-form').submit()
+        })
+    })
+</script>

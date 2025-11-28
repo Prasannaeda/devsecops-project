@@ -1,0 +1,146 @@
+{% load humanize %}
+<style>
+    #uni_modal .modal-footer {
+        display: none
+    }
+    .receipt-container {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .receipt-header {
+        text-align: center;
+        border-bottom: 2px dashed #e9ecef;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+    .receipt-row {
+        padding: 10px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    .receipt-total {
+        background: linear-gradient(135deg, #ff4c33 0%, #a24b4b 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 15px;
+    }
+</style>
+
+<div class="container-fluid">
+    <div id="outprint" class="receipt-container">
+        <div class="receipt-header">
+            <div style="display: inline-block; background: linear-gradient(135deg, #ff4c33 0%, #a24b4b 100%); width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <i class="mdi mdi-store text-white" style="font-size: 32px;"></i>
+            </div>
+            <h4 class="mb-1" style="color: #2c3e50; font-weight: 700;">Daily Deal</h4>
+            <p class="text-muted mb-0" style="font-size: 14px;">Official Receipt</p>
+        </div>
+        
+        <div class="mb-4">
+            <div class="d-flex justify-content-between mb-2">
+                <span style="color: #7f8c8d; font-weight: 600;">Date:</span>
+                <span style="color: #2c3e50; font-weight: 600;">{{ transaction.date_added }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span style="color: #7f8c8d; font-weight: 600;">Transaction:</span>
+                <span style="color: #2c3e50; font-weight: 700;">{{ transaction.code }}</span>
+            </div>
+        </div>
+        
+        <div style="border-top: 2px solid #e9ecef; border-bottom: 2px solid #e9ecef; padding: 15px 0; margin: 20px 0;">
+            <div class="d-flex w-100 mb-2" style="font-weight: 700; color: #2c3e50;">
+                <div class="col-2 text-center">Qty</div>
+                <div class="col-6">Product</div>
+                <div class="col-4 text-end">Amount</div>
+            </div>
+            
+            {% for item in salesItems %}
+            <div class="receipt-row">
+                <div class="d-flex w-100 align-items-center">
+                    <div class="col-2 text-center" style="font-weight: 700; color: #2c3e50; font-size: 16px;">
+                        {{ item.qty|intcomma|floatformat:0 }}
+                    </div>
+                    <div class="col-6">
+                        <div>
+                            <span style="font-weight: 600; color: #2c3e50;">{{ item.product_id }}</span><br>
+                            <small class="text-muted">@ {{ item.price|intcomma }}</small>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end" style="font-weight: 700; color: #2c3e50; font-size: 16px;">
+                        {{ item.total|intcomma }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-4">
+            <div class="d-flex justify-content-between mb-2">
+                <span style="font-weight: 600; color: #7f8c8d;">Subtotal</span>
+                <span style="font-weight: 700; color: #2c3e50; font-size: 18px;">{{ transaction.sub_total|intcomma }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span style="font-weight: 600; color: #7f8c8d;">Tax ({{ transaction.tax|intcomma }}%)</span>
+                <span style="font-weight: 700; color: #2c3e50; font-size: 18px;">{{ transaction.tax_amount|intcomma|floatformat:2 }}</span>
+            </div>
+            
+            <div class="receipt-total">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span style="font-weight: 700; font-size: 18px;">TOTAL</span>
+                    <span style="font-weight: 700; font-size: 24px;">{{ transaction.grand_total|intcomma }}</span>
+                </div>
+                <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px; margin-top: 10px;">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span style="opacity: 0.9;">Tendered</span>
+                        <span style="font-weight: 600;">{{ transaction.tendered_amount|intcomma }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span style="opacity: 0.9;">Change</span>
+                        <span style="font-weight: 600;">{{ transaction.amount_change|intcomma }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4" style="border-top: 2px dashed #e9ecef; padding-top: 20px;">
+            <p class="text-muted mb-1" style="font-size: 13px;">Thank you for your purchase!</p>
+            <p class="text-muted mb-0" style="font-size: 12px;">Please come again</p>
+        </div>
+    </div>
+    
+    <div class="mt-4 d-flex justify-content-end gap-2">
+        <button class="btn btn-lg btn-light border" type="button" id="receipt_print" style="border-radius: 10px; padding: 12px 30px; font-weight: 600;">
+            <i class="mdi mdi-printer me-2"></i>Print
+        </button>
+        <button class="btn btn-lg btn-secondary" type="button" data-bs-dismiss="modal" style="border-radius: 10px; padding: 12px 30px; font-weight: 600;">
+            <i class="mdi mdi-close me-2"></i>Close
+        </button>
+    </div>
+</div>
+
+<script>
+    $(function() {
+        $('#receipt_print').click(function() {
+            var head = $('head').clone()
+            var p = $('#outprint').clone()
+            var el = $("<div>")
+            head.append('<style>body{background-color:unset !important; margin: 20px;} .receipt-container{box-shadow: none !important;}</style>')
+            el.append(head)
+            el.find('title').text("Receipt - Print View")
+            el.append(p)
+            start_loader()
+            var nw = window.open('', '_blank', "width=800,height=800,left=300, top = 200")
+            nw.document.write(el.html())
+            nw.document.close()
+            setTimeout(() => {
+                nw.print()
+                setTimeout(() => {
+                    nw.close()
+                    end_loader()
+                }, 250)
+            }, 300)
+        })
+    })
+</script>

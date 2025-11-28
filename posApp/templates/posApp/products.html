@@ -1,0 +1,147 @@
+{% extends "posApp/base.html" %} 
+{% block pageContent %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <div class="d-flex justify-content-between align-items-center p-4">
+            <div>
+                <h4 class="card-title mb-2" style="color: white; font-weight: 600; font-size: 28px;">
+                    <i class="mdi mdi-package-variant me-2"></i>Product List
+                </h4>
+                <p class="text-white-50 mb-0">Manage your inventory</p>
+            </div>
+            <div class="text-start">
+                <button class="btn btn-light btn-lg rounded-pill shadow" id="create_new" style="padding: 12px 30px; font-weight: 600;">
+                    <i class="mdi mdi-plus-circle me-2"></i>Add New
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12 mt-4">
+    <div class="mdc-card" style="border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <colgroup>
+                    <col width="5%">
+                    <col width="18%">
+                    <col width="20%">
+                    <col width="22%">
+                    <col width="13%">
+                    <col width="10%">
+                    <col width="12%">
+                </colgroup>
+                <thead style="background: linear-gradient(135deg, #ff4c33 0%, #a24b4b 100%);">
+                    <tr>
+                        <th class="text-center py-3 text-white" style="font-weight: 600;">#</th>
+                        <th class="text-center py-3 text-white" style="font-weight: 600;">Category</th>
+                        <th class="text-center py-3 text-white" style="font-weight: 600;">Product</th>
+                        <th class="text-center py-3 text-white" style="font-weight: 600;">Description</th>
+                        <th class="text-center py-3 text-white" style="font-weight: 600;">Image</th>
+                        <th class="text-center py-3 text-white" style="font-weight: 600;">Status</th>
+                        <th class="text-center py-3 text-white" style="font-weight: 600;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr style="transition: all 0.3s ease;">
+                        <td class="px-3 py-3 text-center" style="font-weight: 500; color: #2c3e50;">{{ product.id }}</td>
+                        <td class="px-3 py-3 text-start" style="font-weight: 600; color: #2c3e50;">{{ product.category_id }}</td>
+                        <td class="px-3 py-3 text-start" style="font-weight: 600; color: #2c3e50;">
+                            <div>{{ product.code }}</div>
+                            <small class="text-muted">{{ product.name }}</small>
+                        </td>
+                        <td class="px-3 py-3 text-start text-muted">{{ product.description|truncatewords:10 }}</td>
+                        <td class="px-3 py-3 text-center">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="rounded" style="max-height: 50px; max-width: 50px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            {% else %}
+                            <div style="width: 50px; height: 50px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                <i class="mdi mdi-image-off text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-3 text-center">
+                            {% if product.status == 1 %}
+                            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; font-weight: 600;">Active</span> 
+                            {% else %}
+                            <span class="badge rounded-pill px-3 py-2" style="background: #95a5a6; color: white; font-weight: 600;">Inactive</span> 
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-3 text-center">
+                            <button class="btn btn-sm btn-primary rounded-pill edit-data me-1" type="button" data-id="{{ product.pk }}" title="Edit" style="padding: 8px 16px;">
+                                <i class="mdi mdi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger rounded-pill delete-data" type="button" data-id="{{ product.pk }}" title="Delete" style="padding: 8px 16px;">
+                                <i class="mdi mdi-delete"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock pageContent %} 
+
+{% block ScriptBlock %}
+<script>
+    $(function() {
+        $('#create_new').click(function() {
+            uni_modal("Add New Product", "{% url 'manage_products-page' %}")
+        })
+        $('.edit-data').click(function() {
+            uni_modal("Edit Product", "{% url 'manage_products-page' %}?id=" + $(this).attr('data-id'))
+        })
+        $('.delete-data').click(function() {
+            _conf("Are you sure to delete this Product?", "delete_product", [$(this).attr('data-id')])
+        })
+
+        $('#uni_modal').on('shown.bs.modal', function() {
+            $('#category_id').select2({
+                placeholder: "Please Select Category Here",
+                width: '100%',
+                dropdownParent: $('#uni_modal')
+            })
+        })
+        
+        $('tbody tr').hover(
+            function() {
+                $(this).css('background-color', '#f8f9fa');
+            },
+            function() {
+                $(this).css('background-color', '');
+            }
+        );
+    })
+
+    function delete_product($id) {
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            },
+            url: "{% url 'delete-product' %}",
+            method: "POST",
+            data: {
+                id: $id
+            },
+            dataType: "json",
+            error: err => {
+                console.log(err)
+                alert_toast("An error occured.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();
+                } else {
+                    alert_toast("An error occured.", 'error');
+                    end_loader();
+                }
+            }
+        })
+    }
+</script>
+{% endblock ScriptBlock %}
