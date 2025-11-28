@@ -6,17 +6,16 @@ orbs:
 jobs:
 
   # ==========================================================
-  # 1. PREBUILD JOB (Python, Dependencies, OS packages, Java)
+  # 1. INSTALLATIONS JOB
   # ==========================================================
-  prebuild:
+  install_stage:
     docker:
       - image: cimg/python:3.11
-
     steps:
       - checkout
 
       - run:
-          name: Upgrade pip + Install Python dependencies
+          name: Install Python Dependencies
           command: |
             python -m pip install --upgrade pip
             pip install -r requirements.txt
@@ -37,36 +36,34 @@ jobs:
             java --version
 
   # ==========================================================
-  # 2. BUILD + TEST JOB (Linting, Tests, Sonar, ZIP build)
+  # 2. PYLINT JOB
   # ==========================================================
-  build_and_test:
+  pylint_stage:
     docker:
       - image: cimg/python:3.11
-
     steps:
       - checkout
 
       - run:
-          name: Install Python Dependencies
+          name: Install Python Tools
           command: |
             pip install --upgrade pip
             pip install -r requirements.txt
             pip install pylint
 
       - run:
-          name: Collect Static Files
-          command: |
-            python manage.py collectstatic --noinput
-
-      - run:
-          name: Run Pylint
+          name: Run pylint
           command: |
             pylint easy_bill || true
 
-      - run:
-          name: Run Django Tests
-          command: |
-            python manage.py test
+  # ==========================================================
+  # 3. SONAR SCAN JOB
+  # ==========================================================
+  sonar_stage:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
 
       - run:
           name: Install Sonar Scanner
@@ -86,65 +83,83 @@ jobs:
               -Dsonar.coverage.exclusions=**/* || true
 
             sleep 5
-            curl "https://sonarcloud.io/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY" > sonar_result.json
-            cat sonar_result.json
+            curl "https://sonarcloud.io/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY"
+
+  # ==========================================================
+  # 4. DJANGO TEST JOB
+  # ==========================================================
+  django_test_stage:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
 
       - run:
-          name: Create deployment ZIP
+          name: Install Python Dependencies
+          command: |
+            pip install --upgrade pip
+            pip install -r requirements.txt
+
+      - run:
+          name: Django Tests
+          command: |
+            python manage.py test
+
+  # ==========================================================
+  # 5. BUILD + DEPLOY JOB
+  # ==========================================================
+  build_and_deploy:
+    docker:
+      - image: cimg/python:3.11
+
+    environment:
+      AWS_REGION: us-east-1
+
+    steps:
+      - checkout
+
+      - run:
+          name: Create Deployment ZIP
           command: |
             zip -r deploy.zip . -x "*.git*"
 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - deploy.zip
-
-  # ==========================================================
-  # 3. DEPLOY JOB (Elastic Beanstalk)
-  # ==========================================================
-  deploy:
-    docker:
-      - image: cimg/python:3.11
-  
-    environment:
-      AWS_REGION: us-east-1
-  
-    steps:
-      - checkout
-  
-      # Set AWS CLI credentials (no session token allowed here)
       - aws-cli/setup:
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           aws-region: AWS_REGION
-  
-      # Manually load session token
+
       - run:
-          name: Load AWS session token
+          name: Load AWS Session Token
           command: |
             echo "export AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN" >> $BASH_ENV
             source $BASH_ENV
-  
+
       - run:
           name: Deploy to Elastic Beanstalk
           command: |
             pip install awsebcli
-            eb init "Devops-x23300841-eb" --platform python-3.11 --region "$AWS_REGION"
-            eb deploy Devops-x23300841-eb-env
+            eb init "devops-eb-myapp" --platform python-3.11 --region "$AWS_REGION"
+            eb deploy myapp-x23304723
 
 
-
-# ============================================================
-# PIPELINE WORKFLOW
-# ============================================================
+# ==========================================================
+# WORKFLOW
+# ==========================================================
 workflows:
   version: 2
-  ci_pipeline:
+  full_ci_pipeline:
     jobs:
-      - prebuild
-      - build_and_test:
+      - install_stage
+      - pylint_stage:
           requires:
-            - prebuild
-      - deploy:
+            - install_stage
+      - sonar_stage:
           requires:
-            - build_and_test
+            - install_stage
+      - django_test_stage:
+          requires:
+            - pylint_stage
+      - build_and_deploy:
+          requires:
+            - django_test_stage
+            - sonar_stage
