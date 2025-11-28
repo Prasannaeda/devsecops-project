@@ -60,7 +60,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'daily_deal.wsgi.application'
+WSGI_APPLICATION = 'easy_bill.wsgi.application'
 
 
 # Database
@@ -75,16 +75,7 @@ DATABASES = {
 
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'postgreSQL-x23344440',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgreSQL-x23344440',
-#         'HOST': 'postgresql-x23344440.c7fqmlgbzp6v.us-east-1.rds.amazonaws.com',  # e.g., 'localhost' or remote host
-#         'PORT': '5432',          # default PostgreSQL port
-#     }
-# }
+
 
 
 
@@ -124,24 +115,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-
-""" STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    # location of your application, should not be public web accessible 
-    './static',
-)
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/login/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
- """
 
 
 LOGIN_URL = '/login/'
