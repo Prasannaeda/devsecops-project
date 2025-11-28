@@ -112,11 +112,18 @@ jobs:
     steps:
       - checkout
   
+      # Set AWS CLI credentials (no session token allowed here)
       - aws-cli/setup:
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          aws-session-token: AWS_SESSION_TOKEN
           aws-region: AWS_REGION
+  
+      # Manually load session token
+      - run:
+          name: Load AWS session token
+          command: |
+            echo "export AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN" >> $BASH_ENV
+            source $BASH_ENV
   
       - run:
           name: Deploy to Elastic Beanstalk
