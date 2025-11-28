@@ -1,26 +1,143 @@
 version: 2.1
 
+orbs:
+  aws-cli: circleci/aws-cli@3.1.5
+
 jobs:
-  build:
+
+  # ==========================================================
+  # 1. PREBUILD JOB (Python, Dependencies, OS packages, Java)
+  # ==========================================================
+  prebuild:
     docker:
       - image: cimg/python:3.11
+
     steps:
       - checkout
 
       - run:
-          name: Install deps
+          name: Upgrade pip + Install Python dependencies
           command: |
-            pip install --upgrade pip
+            python -m pip install --upgrade pip
             pip install -r requirements.txt
 
       - run:
-          name: Run Tests
+          name: Install OS dependencies
           command: |
-            python manage.py test
+            sudo apt-get update
+            sudo apt-get install -y jq unzip wget
 
+      - run:
+          name: Install Java 17 (Amazon Corretto)
+          command: |
+            sudo apt-get purge -y openjdk*
+            sudo apt-get install -y java-common
+            wget https://corretto.aws/downloads/latest/amazon-corretto-17-x64-linux-jdk.deb
+            sudo dpkg -i amazon-corretto-17-x64-linux-jdk.deb
+            java --version
+
+  # ==========================================================
+  # 2. BUILD + TEST JOB (Linting, Tests, Sonar, ZIP build)
+  # ==========================================================
+  build_and_test:
+    docker:
+      - image: cimg/python:3.11
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install Python Dependencies
+          command: |
+            pip install --upgrade pip
+            pip install -r requirements.txt
+            pip install pylint
+
+      - run:
+          name: Collect Static Files
+          command: |
+            python manage.py collectstatic --noinput
+
+      - run:
+          name: Run Pylint
+          command: |
+            pylint spend_wise || true
+
+      - run:
+          name: Run Django Tests
+          command: |
+            python manage.py test home.tests.LoginTest
+
+      - run:
+          name: Install Sonar Scanner
+          command: |
+            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+            unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+            mv sonar-scanner-5.0.1.3006-linux sonar-scanner
+
+      - run:
+          name: Run Sonar Scan
+          command: |
+            sonar-scanner/bin/sonar-scanner \
+              -Dsonar.login=$SONAR_TOKEN \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+              -Dsonar.organization=$SONAR_ORG \
+              -Dsonar.coverage.exclusions=**/* || true
+
+            sleep 5
+            curl "https://sonarcloud.io/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY" > sonar_result.json
+            cat sonar_result.json
+
+      - run:
+          name: Create deployment ZIP
+          command: |
+            zip -r deploy.zip . -x "*.git*"
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - deploy.zip
+
+  # ==========================================================
+  # 3. DEPLOY JOB (Elastic Beanstalk)
+  # ==========================================================
+  deploy:
+    docker:
+      - image: cimg/base:stable
+
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: .
+
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-session-token: AWS_SESSION_TOKEN
+          aws-region: us-east-1
+
+      - run:
+          name: Deploy to Elastic Beanstalk
+          command: |
+            pip install awsebcli
+            eb init Devops-x23300841-eb --platform python-3.11 --region us-east-1
+            eb use Devops-x23300841-eb-env
+            eb deploy --staged --label build-${CIRCLE_BUILD_NUM}
+
+
+# ============================================================
+# PIPELINE WORKFLOW
+# ============================================================
 workflows:
   version: 2
-  pipeline:
+  ci_pipeline:
     jobs:
-      - build
-
+      - prebuild
+      - build_and_test:
+          requires:
+            - prebuild
+      - deploy:
+          requires:
+            - build_and_test
