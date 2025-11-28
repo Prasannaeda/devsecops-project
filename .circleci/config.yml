@@ -61,12 +61,12 @@ jobs:
       - run:
           name: Run Pylint
           command: |
-            pylint spend_wise || true
+            pylint easy_bill || true
 
       - run:
           name: Run Django Tests
           command: |
-            python manage.py test home.tests.LoginTest
+            python manage.py test
 
       - run:
           name: Install Sonar Scanner
