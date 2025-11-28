@@ -1,4 +1,7 @@
-
+"""
+All Django settings here
+"""
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -16,7 +19,7 @@ DEBUG = True
 
 #ALLOWED_HOSTS = ['grocery-x23344440.us-east-1.elasticbeanstalk.com/','*']
 
-ALLOWED_HOSTS = ['x23344440.us-east-1.elasticbeanstalk.com', 'localhost', '127.0.0.1','54.227.238.213','*']
+ALLOWED_HOSTS = ['http://myapp-devops.us-east-1.elasticbeanstalk.com/login/?next=/','*']
 
 
 # Application definition
@@ -75,10 +78,6 @@ DATABASES = {
 
 
 
-
-
-
-
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -98,27 +97,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-
-
 LOGIN_URL = '/login/'
-import os
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",  
@@ -130,4 +117,3 @@ LOGIN_REDIRECT_URL = '/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-
