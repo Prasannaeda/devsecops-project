@@ -69,10 +69,10 @@ jobs:
           name: Run Sonar Scan
           command: |
             sonar-scanner/bin/sonar-scanner \
-              -Dsonar.login=610d52941e5ab0fd00ee6f38eba000de4adac00f \
+              -Dsonar.login=$SONAR_TOKEN \
               -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.projectKey=Prasannaeda_devsecops-project \
-              -Dsonar.organization=prasannaeda \
+              -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+              -Dsonar.organization=$SONAR_ORG \
               -Dsonar.exclusions=**/.c9/**,**/node_modules/**,**/venv/** \
               -Dsonar.text.exclusions=**/.c9/** \
               -Dsonar.scm.disabled=true \
