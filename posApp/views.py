@@ -159,115 +159,6 @@ def test(request):
     }
     return render(request, 'posApp/test.html',context)
 
-""" 
-@login_required
-def save_product(request):
-    data =  request.POST
-    resp = {'status':'failed'}
-    id= ''
-    if 'id' in data:
-        id = data['id']
-    if id.isnumeric() and int(id) > 0:
-        check = Products.objects.exclude(id=id).filter(code=data['code']).all()
-    else:
-        check = Products.objects.filter(code=data['code']).all()
-    if len(check) > 0 :
-        resp['msg'] = "Product Code Already Exists in the database"
-    else:
-        category = Category.objects.filter(id = data['category_id']).first()
-        try:
-            if (data['id']).isnumeric() and int(data['id']) > 0 :
-                save_product = Products.objects.filter(id = data['id']).update(code=data['code'], category_id=category, name=data['name'], description = data['description'], price = float(data['price']),image = data['image'],status = data['status'])
-            else:
-                save_product = Products(code=data['code'], category_id=category, name=data['name'], description = data['description'], price = float(data['price']),image = data['image'],status = data['status'])
-                save_product.save()
-            resp['status'] = 'success'
-            messages.success(request, 'Product Successfully saved.')
-        except:
-            resp['status'] = 'failed'
-    return HttpResponse(json.dumps(resp), content_type="application/json")
- """
-""" 
-
-@login_required
-def save_product(request):
-    if request.method == 'POST':
-        data = request.POST
-        files = request.FILES
-        resp = {'status': 'failed'}
-        id = data.get('id', '')
-
-        # Check for existing code
-        if id.isnumeric() and int(id) > 0:
-            check = Products.objects.exclude(id=id).filter(code=data['code']).all()
-        else:
-            check = Products.objects.filter(code=data['code']).all()
-
-        if len(check) > 0:
-            resp['msg'] = "Product Code Already Exists in the database"
-        else:
-            category = Category.objects.filter(id=data['category_id']).first()
-
-            try:
-                image = files.get('image', None)
-
-                if id.isnumeric() and int(id) > 0:
-                    product = Products.objects.get(id=id)
-                    product.code = data['code']
-                    product.category_id = category
-                    product.name = data['name']
-                    product.description = data['description']
-                    product.price = float(data['price'])
-                    product.status = data['status']
-
-                    if image:
-                        product.image = image  
-
-                    product.save()
-
-                    # Upload to S3 if image is provided
-                    import boto3
-                    from botocore.exceptions import NoCredentialsError, PartialCredentialsError
-
-                    bucket_name = "x23344440-s3"
-                    if object_name is None:
-                        object_name = product.name
-
-                    s3_client = boto3.client('s3', region_name="us-east-1")
-                    
-                    try:
-                        s3_client.upload_fileobj(image, bucket_name, object_name)
-                        return True
-                    except (NoCredentialsError, PartialCredentialsError) as e:
-                        print(f"Credentials error: {e}")
-                        return False
-                    except Exception as e:
-                        print(f"An error occurred: {e}")
-                        return False
-                    
-                else:
-                    product = Products(
-                        code=data['code'],
-                        category_id=category,
-                        name=data['name'],
-                        description=data['description'],
-                        price=float(data['price']),
-                        status=data['status']
-                    )
-                    if image:
-                        product.image = image
-                    product.save()
-
-                resp['status'] = 'success'
-                messages.success(request, 'Product successfully saved.')
-            except Exception as e:
-                resp['status'] = 'failed'
-                resp['msg'] = f"An error occurred: {str(e)}"
-
-        return HttpResponse(json.dumps(resp), content_type="application/json")
- """
-
-
 
 
 @login_required
@@ -309,24 +200,24 @@ def save_product(request):
                     product.image = image  # Save to local media folder
                 product.save()
 
-                # Upload image to S3
-                if image:
+                # # Upload image to S3
+                # if image:
                     
-                    import boto3
-                    from botocore.exceptions import NoCredentialsError, PartialCredentialsError
+                #     import boto3
+                #     from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 
-                    bucket_name = "x23344440-s3"
-                    object_name = f"products/{image.name}"  
+                #     bucket_name = "x23344440-s3"
+                #     object_name = f"products/{image.name}"  
 
-                    s3_client = boto3.client('s3', region_name="us-east-1")
+                #     s3_client = boto3.client('s3', region_name="us-east-1")
 
-                    try:
-                        image.seek(0)
-                        s3_client.upload_fileobj(image, bucket_name, object_name)
-                    except (NoCredentialsError, PartialCredentialsError) as e:
-                        print(f"[S3 Credential Error] {e}")
-                    except Exception as e:
-                        print(f"[S3 Upload Error] {e}")
+                #     try:
+                #         image.seek(0)
+                #         s3_client.upload_fileobj(image, bucket_name, object_name)
+                #     except (NoCredentialsError, PartialCredentialsError) as e:
+                #         print(f"[S3 Credential Error] {e}")
+                #     except Exception as e:
+                #         print(f"[S3 Upload Error] {e}")
 
 
                 resp['status'] = 'success'
@@ -411,8 +302,7 @@ def save_pos(request):
         resp['status'] = 'success'
         resp['sale_id'] = sale_id
         messages.success(request, "Sale Record has been saved.")
-        lambda_result = call_lambda_via_api('New Sale Record Created',f"sale id: {sale_id}, code: {code}, grand total: {data['grand_total']}")
-        print("Lambda response:", lambda_result)
+
 
     except:
         resp['msg'] = "An error occured"
@@ -448,47 +338,6 @@ def salesList(request):
 
 import requests
 
-def call_lambda_via_api(subject, message):
-    api_url = "https://rmaoje9wvj.execute-api.us-east-1.amazonaws.com/stage1/send-mail"
-    headers = {'Content-Type': 'application/json'}
-
-    # Wrap payload in a "body" key as a JSON string
-    payload = {
-        "body": json.dumps({
-            "subject": subject,
-            "message": message
-        })
-    }
-
-    try:
-        res = requests.post(api_url, json=payload, headers=headers)
-        res.raise_for_status()
-        return res.json()
-    except requests.exceptions.RequestException as e:
-        print("Error calling Lambda:", e)
-        return {"error": str(e)}
-
-
-""" 
-@login_required
-def receipt(request):
-    id = request.GET.get('id')
-    sales = Sales.objects.filter(id = id).first()
-    transaction = {}
-    for field in Sales._meta.get_fields():
-        if field.related_model is None:
-            transaction[field.name] = getattr(sales,field.name)
-    if 'tax_amount' in transaction:
-        transaction['tax_amount'] = format(float(transaction['tax_amount']))
-    ItemList = salesItems.objects.filter(sale_id = sales).all()
-    context = {
-        "transaction" : transaction,
-        "salesItems" : ItemList
-    }
-    return render(request, 'posApp/receipt.html',context)
-    # return HttpResponse('') """
-
-
 
 from receipt_lib import format_transaction_date, generate_transaction_code, get_formatted_current_date
 
@@ -520,7 +369,6 @@ def receipt(request):
         "salesItems": ItemList
     }
     return render(request, 'posApp/receipt.html', context)
-
 
 
 @login_required
