@@ -22,7 +22,6 @@ SECRET_KEY = get_secret_key()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-#ALLOWED_HOSTS = ['grocery-x23344440.us-east-1.elasticbeanstalk.com/','*']
 
 ALLOWED_HOSTS = ['http://myapp-devops.us-east-1.elasticbeanstalk.com/login/?next=/','*']
 
